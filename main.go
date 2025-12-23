@@ -25,13 +25,13 @@ func msgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if icao, found := strings.CutPrefix(msg, "metar "); found {
 		reply := cmdMETAR(icao)
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("`%s`", reply))
+		s.ChannelMessageSend(m.ChannelID, reply)
 		return
 	}
 
 	if icao, found := strings.CutPrefix(msg, "taf "); found {
 		reply := cmdTAF(icao)
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("```%s```", reply))
+		s.ChannelMessageSend(m.ChannelID, reply)
 		return
 	}
 
