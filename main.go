@@ -58,7 +58,8 @@ func msgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func fetchMETAR(icao string) (string, error) {
-	url := fmt.Sprintf("https://aviationweather.gov/api/data/metar?ids=%s&format=json", icao)
+	rootURL := "https://aviationweather.gov/api/data"
+	url := fmt.Sprintf("%s/metar?ids=%s&format=json", rootURL, icao)
 
 	client := &http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Get(url)
