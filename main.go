@@ -43,7 +43,7 @@ func msgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "somethin ain't right")
 			return
 		}
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("`%s`", raw))
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("```%s```", raw))
 		return
 	}
 
@@ -79,7 +79,7 @@ func msgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			taf = "[TAF unavailable]"
 		}
 
-		reply := fmt.Sprintf("```\n%s\n\n%s\n```", metar, taf)
+		reply := fmt.Sprintf("```\n%s\n\n%s```", metar, taf)
 		s.ChannelMessageSend(m.ChannelID, reply)
 		return
 	}
