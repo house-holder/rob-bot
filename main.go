@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 )
 
 var factTriggers = []string{
@@ -59,6 +60,17 @@ func msgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "fuck ronald reagan")
 			return
 		}
+	}
+
+	t := time.Now()
+	if strings.Contains(msg, "christmas eve") && t.Month() == time.December && t.Day() == 24 {
+		s.ChannelMessageSend(m.ChannelID, "it's christmas eve, *not* christmas steve...")
+		return
+	}
+
+	if strings.Contains(msg, "ts ") || strings.HasPrefix(msg, "ts ") {
+		s.ChannelMessageSend(m.ChannelID, "ts pmo fr fr")
+		return
 	}
 }
 
