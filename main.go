@@ -68,7 +68,7 @@ func msgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.Contains(msg, "ts ") || strings.HasPrefix(msg, "ts ") {
+	if strings.Contains(msg, " ts ") || strings.HasPrefix(msg, "ts ") {
 		s.ChannelMessageSend(m.ChannelID, "ts pmo fr fr")
 		return
 	}
