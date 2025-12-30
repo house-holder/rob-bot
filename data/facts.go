@@ -1,6 +1,6 @@
-package main
+package data
 
-var reaganFacts = []string{
+var ReaganFacts = []string{
 	"Reagan opposed the Civil Rights Act of 1964 and the Voting Rights Act of 1965.",
 	"On August 5, 1981, Reagan fired 11,359 striking air traffic controllers and banned them from federal employment for life.",
 	"Reagan's PATCO crackdown in 1981 is credited with emboldening corporate America to permanently replace striking workers.",
@@ -47,13 +47,13 @@ var reaganFacts = []string{
 	"Reagan's 1982 Bus Regulatory Reform Act led directly to the 1983 Greyhound strike, which ultimately decimated bus driver unions.",
 }
 
-var transportTrivia = []string{
+var TransportTrivia = []string{
 	"Some early swept-wing jets used stick-force gradients tuned to mask Mach tuck rather than eliminate it aerodynamically.",
 	"Certain turbine engines briefly gain surge margin during rapid throttle chops due to compressor unloading.",
 	"The first certified autoland systems assumed a failed flare and relied on ground effect to save touchdowns.",
 	"In some designs, spoiler panels are aerodynamically blanked at high alpha, reducing roll authority exactly when demanded most.",
 	"Cabin pressure relief valves can momentarily open during aggressive pitch changes despite stable differential pressure.",
-	"Early FBW test aircraft intentionally injected artificial control lag to preserve pilot “feel” during evaluation.",
+	"Early FBW test aircraft intentionally injected artificial control lag to preserve pilot \"feel\" during evaluation.",
 	"Certain airliners experience higher brake temperatures after short taxi distances due to carbon brake oxidation inefficiency.",
 	"Some yaw dampers apply rudder opposite sensed yaw during turbulence to reduce structural fatigue, foregoing increased comfort in favor of airframe longevity.",
 	"Modern turbofan engine EGT and flame depth margins can often be temporarily increased following prolonged cruise power settings.",
@@ -85,8 +85,8 @@ var transportTrivia = []string{
 	"Some air data computing relies on smoothing filters that intentionally under-report rapid airspeed changes.",
 	"Several ETOPS diversion rules are driven by oil consumption trend analysis, not absolute quantity.",
 	"Elevator feel systems can mask excessive hinge moment until hydraulic pressure drops, leading to limits on feel buffering depending on computed surface authority.",
-	"Some modern control systems classify instances of yaw damper hardovers as “nuisance” events, unless sustained beyond a timer threshold.",
-	"Several competing airliners’ control and core navigation systems share common software libraries designed and backed by NASA.",
+	"Some modern control systems classify instances of yaw damper hardovers as \"nuisance\" events, unless sustained beyond a timer threshold.",
+	"Several competing airliners' control and core navigation systems share common software libraries designed and backed by NASA.",
 	"Bleed air leak detection in advanced transport aircraft can rely on subtleties like temperature *gradient* instead of solely monitoring for exceedance.",
 	"Certain overspeed protections are advisory only unless combined with vertical acceleration thresholds, but will still ground an airframe until properly vetted.",
 	"Some FCCs will continue using a failed sensor indefinitely if it failed within tolerance and never crossed a fault threshold.",
@@ -105,11 +105,11 @@ var transportTrivia = []string{
 	"Early faults in antiskid systems almost always correlate to high noise during pushback, the only time the sensors rotate in reverse.",
 }
 
-var memoryItems = []string{
+var MemoryItems = []string{
 	"The fault waits until pushback because it respects witnesses.",
 	"If it survived three power cycles at the gate, it will fail immediately once in motion.",
 	"The system only breaks after pushback to avoid paperwork.",
-	"The fault is allergic to maintenance personnel within arm’s reach.",
+	"The fault is allergic to maintenance personnel within arm's reach.",
 	"The airplane knows when the tug disconnects.",
 	"If the fault clears by lineup, it will return on climbout.",
 	"The warning exists solely to prove redundancy is theoretical.",
@@ -139,7 +139,7 @@ var memoryItems = []string{
 	"The AOG replacement fails the same way a majority of the time.",
 }
 
-var horseFacts = []string{
+var HorseFacts = []string{
 	"Horses can sleep standing up.",
 	"A horse's teeth take up more space in their head than their brain.",
 	"Horses can't vomit.",
@@ -243,3 +243,4 @@ var horseFacts = []string{
 	"Horses establish 'bachelor bands' of young males before maturity in wild populations.",
 	"The Morgan horse breed descended from a single stallion named Figure in the 1790s.",
 }
+

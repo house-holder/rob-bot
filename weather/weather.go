@@ -1,4 +1,4 @@
-package main
+package weather
 
 import (
 	"encoding/json"
@@ -18,7 +18,7 @@ type ATISResp struct {
 	Time    string `json:"time"`
 }
 
-func cmdMETAR(icao string) string {
+func CmdMETAR(icao string) string {
 	raw, err := fetchMETAR(icao)
 	if err != nil {
 		return "somethin ain't right"
@@ -26,7 +26,7 @@ func cmdMETAR(icao string) string {
 	return fmt.Sprintf("`%s`", raw)
 }
 
-func cmdTAF(icao string) string {
+func CmdTAF(icao string) string {
 	raw, err := fetchTAF(icao)
 	if err != nil {
 		return "somethin ain't right"
@@ -34,7 +34,7 @@ func cmdTAF(icao string) string {
 	return fmt.Sprintf("```%s```", raw)
 }
 
-func cmdWX(icao string) string {
+func CmdWX(icao string) string {
 	icao = strings.ToUpper(icao)
 	var metar, taf string
 	var metarErr, tafErr error
@@ -65,7 +65,7 @@ func cmdWX(icao string) string {
 	return reply
 }
 
-func cmdATIS(icao string) (string, string, error) {
+func CmdATIS(icao string) (string, string, error) {
 	atis, code, timeStr, err := fetchATIS(icao)
 	caps := strings.ToUpper(icao)
 	if err != nil {
