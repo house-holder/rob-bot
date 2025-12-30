@@ -10,11 +10,12 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
-	"time"
 )
 
+var avTrigger = "lay it on me"
+
 var factTriggers = []string{
-	"reagan facts", "reaganfacts", "reaganfax", "rgnfax", "fax", "fact", "facts",
+	"reagan facts", "reaganfacts", "reaganfax", "reagan fact",
 }
 var triggers = []string{"reagan", "ronald", "nancy"}
 
@@ -23,6 +24,24 @@ func msgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	msg := strings.ToLower(m.Content)
+
+	if m.Author.ID == "822006025229959168" {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "🐴")
+	}
+	if strings.Contains(msg, "horse") {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "🐴")
+	}
+	if strings.Contains(msg, "house") {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "🏚️")
+	}
+	if strings.Contains(msg, "dub") {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "🇼")
+	}
+	if (strings.Contains(msg, "6") || strings.Contains(msg, "six")) &&
+		(strings.Contains(msg, "7") || strings.Contains(msg, "seven")) {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "6️⃣")
+		s.MessageReactionAdd(m.ChannelID, m.ID, "7️⃣")
+	}
 
 	if icao, found := strings.CutPrefix(msg, "metar "); found {
 		reply := cmdMETAR(icao)
@@ -42,11 +61,19 @@ func msgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	if strings.Contains(msg, "horse fact") {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "🐴")
+		fact := horseFacts[rand.Intn(len(horseFacts))]
+		fullMsg := fmt.Sprintf("**Horse Fact:**\n>>> %s", fact)
+		s.ChannelMessageSend(m.ChannelID, fullMsg)
+		return
+	}
+
 	for _, ft := range factTriggers {
 		if strings.Contains(msg, ft) {
-			fact := facts[rand.Intn(len(facts))]
-			fullMessage := fmt.Sprintf(">>> %s", fact)
-			s.ChannelMessageSend(m.ChannelID, fullMessage)
+			fact := reaganFacts[rand.Intn(len(reaganFacts))]
+			fullMsg := fmt.Sprintf(">>> %s", fact)
+			s.ChannelMessageSend(m.ChannelID, fullMsg)
 			return
 		}
 	}
@@ -54,18 +81,27 @@ func msgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	for _, t := range triggers {
 		if strings.Contains(msg, t) {
 			if t == "nancy" {
-				s.ChannelMessageSend(m.ChannelID, "fuck the reagans")
+				s.ChannelMessageSend(m.ChannelID, "hey! fuck the reagans")
 				return
 			}
-			s.ChannelMessageSend(m.ChannelID, "fuck ronald reagan")
+			s.ChannelMessageSend(m.ChannelID, "oh yeah, fuck ronald reagan")
 			return
 		}
 	}
 
-	t := time.Now()
-	if strings.Contains(msg, "christmas eve") && t.Month() == time.December && t.Day() == 24 {
-		s.ChannelMessageSend(m.ChannelID, "it's christmas eve, *not* christmas steve...")
-		return
+	if strings.Contains(msg, avTrigger) {
+		list := rand.Intn(10)
+		if list < 5 {
+			mem := memoryItems[rand.Intn(len(memoryItems))]
+			fullMsg := fmt.Sprintf("**Remember:** %s", mem)
+			s.ChannelMessageSend(m.ChannelID, fullMsg)
+			return
+		} else {
+			trivia := transportTrivia[rand.Intn(len(transportTrivia))]
+			fullMsg := fmt.Sprintf(">>> %s", trivia)
+			s.ChannelMessageSend(m.ChannelID, fullMsg)
+			return
+		}
 	}
 
 	if strings.Contains(msg, " ts ") || strings.HasPrefix(msg, "ts ") {
@@ -82,7 +118,8 @@ func main() {
 	}
 
 	dg.Identify.Intents = discordgo.IntentsGuildMessages |
-		discordgo.IntentMessageContent
+		discordgo.IntentMessageContent |
+		discordgo.IntentGuildMessageReactions // NOTE: assumed needed this
 	dg.AddHandler(msgCreate)
 
 	dg.Open()
