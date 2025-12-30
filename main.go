@@ -12,10 +12,12 @@ import (
 	"syscall"
 )
 
-var avTrigger = "lay it on me"
+var tenor = "https://tenor.com/view"
+var nod = "/owyeah-gif-5873858916975845615"
 
+var avTrigger = "lay it on me"
 var factTriggers = []string{
-	"reagan facts", "reaganfacts", "reaganfax", "reagan fact",
+	"reagan fact", "reagan facts", "reaganfacts",
 }
 var triggers = []string{"reagan", "ronald", "nancy"}
 
@@ -25,39 +27,43 @@ func msgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	msg := strings.ToLower(m.Content)
 
-	if m.Author.ID == "822006025229959168" {
-		s.MessageReactionAdd(m.ChannelID, m.ID, "🐴")
+	if strings.Contains(msg, ", do you agree?") ||
+		strings.Contains(msg, "who agrees?") ||
+		strings.Contains(msg, "someone agree") {
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s%s", tenor, nod))
 	}
 	if strings.Contains(msg, "horse") {
 		s.MessageReactionAdd(m.ChannelID, m.ID, "🐴")
 	}
-	if strings.Contains(msg, "house") {
-		s.MessageReactionAdd(m.ChannelID, m.ID, "🏚️")
-	}
 	if strings.Contains(msg, "dub") {
 		s.MessageReactionAdd(m.ChannelID, m.ID, "🇼")
 	}
-	if (strings.Contains(msg, "6") || strings.Contains(msg, "six")) &&
-		(strings.Contains(msg, "7") || strings.Contains(msg, "seven")) {
-		s.MessageReactionAdd(m.ChannelID, m.ID, "6️⃣")
-		s.MessageReactionAdd(m.ChannelID, m.ID, "7️⃣")
-	}
+
+	// if m.Author.ID == "822006025229959168" {
+	// 	s.MessageReactionAdd(m.ChannelID, m.ID, "🐴")
+	// }
+
+	// if (strings.Contains(msg, "6") || strings.Contains(msg, "six")) &&
+	// 	(strings.Contains(msg, "7") || strings.Contains(msg, "seven")) {
+	// 	s.MessageReactionAdd(m.ChannelID, m.ID, "6️⃣")
+	// 	s.MessageReactionAdd(m.ChannelID, m.ID, "7️⃣")
+	// }
 
 	if icao, found := strings.CutPrefix(msg, "metar "); found {
 		reply := cmdMETAR(icao)
-		s.ChannelMessageSend(m.ChannelID, reply)
+		s.ChannelMessageSendReply(m.ChannelID, reply, m.Reference())
 		return
 	}
 
 	if icao, found := strings.CutPrefix(msg, "taf "); found {
 		reply := cmdTAF(icao)
-		s.ChannelMessageSend(m.ChannelID, reply)
+		s.ChannelMessageSendReply(m.ChannelID, reply, m.Reference())
 		return
 	}
 
 	if icao, found := strings.CutPrefix(msg, "wx "); found {
 		reply := cmdWX(icao)
-		s.ChannelMessageSend(m.ChannelID, reply)
+		s.ChannelMessageSendReply(m.ChannelID, reply, m.Reference())
 		return
 	}
 
@@ -102,11 +108,6 @@ func msgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, fullMsg)
 			return
 		}
-	}
-
-	if strings.Contains(msg, " ts ") || strings.HasPrefix(msg, "ts ") {
-		s.ChannelMessageSend(m.ChannelID, "ts pmo fr fr")
-		return
 	}
 }
 
