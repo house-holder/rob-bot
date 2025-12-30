@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"math/rand"
 
-	"github.com/bwmarrin/discordgo"
 	"rob-bot/data"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 var tenor = "https://tenor.com/view"
 var nod = "/owyeah-gif-5873858916975845615"
+var cheeks = "/nsfw-gif-12427338058739620942"
 var avTrigger = "lay it on me"
 var triggers = []string{"reagan", "ronald", "nancy"}
 
@@ -18,6 +20,11 @@ func handleMisc(s *discordgo.Session, m *discordgo.MessageCreate, msg string) bo
 		contains(msg, "who agrees?") ||
 		contains(msg, "someone agree") {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s%s", tenor, nod))
+		return true
+	}
+
+	if contains(msg, "cheek") {
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s%s", tenor, cheeks))
 		return true
 	}
 
@@ -49,4 +56,3 @@ func handleMisc(s *discordgo.Session, m *discordgo.MessageCreate, msg string) bo
 
 	return false
 }
-
