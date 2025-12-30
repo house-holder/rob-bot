@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
-	"github.com/joho/godotenv"
 	"log"
 	"math/rand"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
+
+	"github.com/bwmarrin/discordgo"
+	"github.com/joho/godotenv"
 )
 
 var tenor = "https://tenor.com/view"
@@ -64,6 +65,25 @@ func msgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if icao, found := strings.CutPrefix(msg, "wx "); found {
 		reply := cmdWX(icao)
 		s.ChannelMessageSendReply(m.ChannelID, reply, m.Reference())
+		return
+	}
+
+	if icao, found := strings.CutPrefix(msg, "atis "); found {
+		reply, code, err := cmdATIS(icao)
+		if err != nil {
+			s.ChannelMessageSendReply(m.ChannelID, err.Error(), m.Reference())
+			return
+		}
+
+		if len(code) > 0 {
+			letter := strings.ToUpper(code)[0]
+			if letter >= 'A' && letter <= 'Z' {
+				emojiRune := '\U0001F1E6' + rune(letter-'A')
+				s.MessageReactionAdd(m.ChannelID, m.ID, string(emojiRune))
+			}
+		}
+
+		s.ChannelMessageSend(m.ChannelID, reply)
 		return
 	}
 

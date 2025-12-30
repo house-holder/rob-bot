@@ -3,11 +3,20 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
+
+type ATISResp struct {
+	Airport string `json:"airport"`
+	Code    string `json:"code"`
+	ATIS    string `json:"datis"`
+	Time    string `json:"time"`
+}
 
 func cmdMETAR(icao string) string {
 	raw, err := fetchMETAR(icao)
@@ -54,6 +63,86 @@ func cmdWX(icao string) string {
 
 	reply := fmt.Sprintf("```\n%s\n\n%s```", metar, taf)
 	return reply
+}
+
+func cmdATIS(icao string) (string, string, error) {
+	atis, code, timeStr, err := fetchATIS(icao)
+	caps := strings.ToUpper(icao)
+	if err != nil {
+		return "", "", fmt.Errorf("no ATIS for %s", caps)
+	}
+
+	atisTime, err := parseATISTime(timeStr)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to parse time: %w", err)
+	}
+
+	ageMinutes := int(time.Since(atisTime).Minutes())
+	ageText := fmt.Sprintf("%d minute", ageMinutes)
+	if ageMinutes != 1 {
+		ageText += "s"
+	}
+
+	message := fmt.Sprintf("**(%s old)**\n>>> %s", ageText, atis)
+	return message, code, nil
+}
+
+func parseATISTime(timeStr string) (time.Time, error) {
+	if len(timeStr) != 4 {
+		return time.Time{}, fmt.Errorf("invalid time format: %s", timeStr)
+	}
+
+	hours, err := strconv.Atoi(timeStr[0:2])
+	if err != nil {
+		return time.Time{}, fmt.Errorf("invalid hours: %w", err)
+	}
+	minutes, err := strconv.Atoi(timeStr[2:4])
+	if err != nil {
+		return time.Time{}, fmt.Errorf("invalid minutes: %w", err)
+	}
+
+	now := time.Now().UTC()
+	atisTime := time.Date(now.Year(), now.Month(), now.Day(), hours, minutes, 0, 0, time.UTC)
+
+	if atisTime.After(now) {
+		atisTime = atisTime.AddDate(0, 0, -1)
+	}
+
+	return atisTime, nil
+}
+
+func fetchATIS(icao string) (string, string, string, error) {
+	station := strings.ToLower(icao)
+	url := fmt.Sprintf("https://atis.info/api/%s", station)
+
+	client := &http.Client{Timeout: 7 * time.Second}
+	resp, err := client.Get(url)
+	if err != nil {
+		return "", "", "", fmt.Errorf("failed to fetch ATIS: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return "", "", "", fmt.Errorf("API returns status %d", resp.StatusCode)
+	}
+
+	bytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", "", "", fmt.Errorf("IO read failed: %w", err)
+	}
+
+	jsonObjs := []ATISResp{}
+	err = json.Unmarshal(bytes, &jsonObjs)
+	if err != nil {
+		return "", "", "", fmt.Errorf("JSON parse failed: %w", err)
+	}
+
+	if len(jsonObjs) == 0 {
+		return "", "", "", fmt.Errorf("no ATIS for %s", strings.ToUpper(icao))
+	}
+	tgt := jsonObjs[0]
+
+	return tgt.ATIS, tgt.Code, tgt.Time, nil
 }
 
 func fetchMETAR(icao string) (string, error) {
