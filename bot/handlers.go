@@ -6,26 +6,25 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// MsgCreate -
 func MsgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 	msg := strings.ToLower(m.Content)
 
-	handleReactions(s, m, msg)
-
 	if handleWeather(s, m, msg) {
 		return
 	}
 
-	if handleFacts(s, m, msg) {
+	if handleMessages(s, m, msg) {
 		return
 	}
 
+	handleReactions(s, m, msg)
 	handleMisc(s, m, msg)
 }
 
-func contains(s, substr string) bool {
-	return strings.Contains(s, substr)
+func contains(s, substr string) bool { // case-insensitive compare
+	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }
-
