@@ -104,12 +104,8 @@ func CmdATIS(icao string) (string, string, error) {
 	}
 
 	ageMinutes := int(time.Since(atisTime).Minutes())
-	ageText := fmt.Sprintf("%d minute", ageMinutes)
-	if ageMinutes != 1 {
-		ageText += "s"
-	}
-
-	message := fmt.Sprintf("**(%s old)**\n>>> %s", ageText, atis)
+	ageText := fmt.Sprintf("%dmin", ageMinutes)
+	message := fmt.Sprintf("**%s old**\n>>> %s", ageText, atis)
 	return message, code, nil
 }
 
@@ -126,14 +122,18 @@ func CmdATISLetter(icao string) (string, error) {
 	}
 
 	ageMinutes := int(time.Since(atisTime).Minutes())
-	ageText := fmt.Sprintf("%d minute", ageMinutes)
-	if ageMinutes != 1 {
-		ageText += "s"
+	ageText := fmt.Sprintf("%dmin", ageMinutes)
+	var emojiRune rune
+	if len(code) > 0 {
+		letter := strings.ToUpper(code)[0]
+		if letter >= 'A' && letter <= 'Z' {
+			emojiRune = '\U0001F1E6' + rune(letter-'A')
+		}
 	}
 
 	minimal := fmt.Sprintf(
-		"# You have **%s** (%sZ - **%s old**)",
-		code, timeStr, ageText)
+		"Info %c updated **%s** ago (%sZ)",
+		emojiRune, ageText, timeStr)
 	return minimal, nil
 }
 

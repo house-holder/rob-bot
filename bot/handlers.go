@@ -2,8 +2,6 @@ package bot
 
 import (
 	"fmt"
-	"strings"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -24,9 +22,6 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			Data: &discordgo.InteractionResponseData{
 				Content: fmt.Sprintf("**Horse Fact:**\n>>> %s", text),
 			},
-		})
-		s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-			Content: "🐴",
 		})
 
 	case "reaganfact":
@@ -88,7 +83,7 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	case "atis":
 		icao := data.Options[0].StringValue()
-		reply, code, err := CmdATIS(icao)
+		reply, _, err := CmdATIS(icao)
 		if err != nil {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -105,23 +100,6 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				Content: reply,
 			},
 		})
-
-		if len(code) > 0 {
-			letter := strings.ToUpper(code)[0]
-			if letter >= 'A' && letter <= 'Z' {
-				emojiRune := '\U0001F1E6' + rune(letter-'A')
-				msg, err := s.InteractionResponse(i.Interaction)
-				if err == nil && msg != nil {
-					s.MessageReactionAdd(i.ChannelID, msg.ID, string(emojiRune))
-				} else {
-					time.Sleep(500 * time.Millisecond)
-					msgs, err := s.ChannelMessages(i.ChannelID, 1, "", "", "")
-					if err == nil && len(msgs) > 0 && msgs[0].Author.ID == s.State.User.ID {
-						s.MessageReactionAdd(i.ChannelID, msgs[0].ID, string(emojiRune))
-					}
-				}
-			}
-		}
 
 	case "go":
 		icao := data.Options[0].StringValue()

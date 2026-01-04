@@ -12,7 +12,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func registerCommands(s *discordgo.Session) {
+func registerCommands(s *discordgo.Session) { // stale command cleanup
 	commands := []discordgo.ApplicationCommand{
 		{
 			Name:        "horsefact",
