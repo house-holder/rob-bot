@@ -75,10 +75,13 @@ func CmdWX(icao string) string {
 	}
 
 	var parts []string
-	parts = append(parts, metar)
+
+	if atisErr != nil || atis == "" {
+		parts = append(parts, metar)
+	}
 
 	if atisErr == nil && atis != "" {
-		parts = append(parts, "", atis)
+		parts = append(parts, atis)
 	}
 
 	parts = append(parts, "", taf)

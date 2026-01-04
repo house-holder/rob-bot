@@ -3,6 +3,7 @@ package bot
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"rob-bot/weather"
 
@@ -107,16 +108,23 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			},
 		})
 
-		// Add reaction for ATIS code if available
 		if len(code) > 0 {
 			letter := strings.ToUpper(code)[0]
 			if letter >= 'A' && letter <= 'Z' {
 				emojiRune := '\U0001F1E6' + rune(letter-'A')
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: string(emojiRune),
-				})
+				msg, err := s.InteractionResponse(i.Interaction)
+				if err == nil && msg != nil {
+					s.MessageReactionAdd(i.ChannelID, msg.ID, string(emojiRune))
+				} else {
+					time.Sleep(500 * time.Millisecond)
+					msgs, err := s.ChannelMessages(i.ChannelID, 1, "", "", "")
+					if err == nil && len(msgs) > 0 && msgs[0].Author.ID == s.State.User.ID {
+						s.MessageReactionAdd(i.ChannelID, msgs[0].ID, string(emojiRune))
+					}
+				}
 			}
 		}
+
 	case "go":
 		icao := data.Options[0].StringValue()
 		minimal, err := weather.CmdATISLetter(icao)
