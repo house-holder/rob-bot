@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -38,4 +39,29 @@ func handleMisc(s *discordgo.Session, m *discordgo.MessageCreate, msg string) bo
 	}
 
 	return false
+}
+
+func handleReactions(s *discordgo.Session, m *discordgo.MessageCreate, msg string) bool {
+	if contains(msg, "horse") {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "🐴")
+	}
+	if contains(msg, "dub") {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "🇼")
+	}
+	return false
+}
+
+// MsgCreate -
+func MsgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+	msg := strings.ToLower(m.Content)
+
+	handleReactions(s, m, msg)
+	handleMisc(s, m, msg)
+}
+
+func contains(s, substr string) bool { // case-insensitive compare
+	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }

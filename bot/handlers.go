@@ -5,8 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"rob-bot/weather"
-
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -60,7 +58,7 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	case "metar":
 		icao := data.Options[0].StringValue()
-		reply := weather.CmdMETAR(icao)
+		reply := CmdMETAR(icao)
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
@@ -70,7 +68,7 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	case "taf":
 		icao := data.Options[0].StringValue()
-		reply := weather.CmdTAF(icao)
+		reply := CmdTAF(icao)
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
@@ -80,7 +78,7 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	case "wx":
 		icao := data.Options[0].StringValue()
-		reply := weather.CmdWX(icao)
+		reply := CmdWX(icao)
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
@@ -90,7 +88,7 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	case "atis":
 		icao := data.Options[0].StringValue()
-		reply, code, err := weather.CmdATIS(icao)
+		reply, code, err := CmdATIS(icao)
 		if err != nil {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -127,7 +125,7 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	case "go":
 		icao := data.Options[0].StringValue()
-		minimal, err := weather.CmdATISLetter(icao)
+		minimal, err := CmdATISLetter(icao)
 		if err != nil {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -145,19 +143,4 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			},
 		})
 	}
-}
-
-// MsgCreate -
-func MsgCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-	msg := strings.ToLower(m.Content)
-
-	handleReactions(s, m, msg)
-	handleMisc(s, m, msg)
-}
-
-func contains(s, substr string) bool { // case-insensitive compare
-	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }

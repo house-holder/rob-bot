@@ -1,4 +1,4 @@
-package weather
+package bot
 
 import (
 	"encoding/json"
