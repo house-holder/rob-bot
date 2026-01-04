@@ -20,7 +20,7 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Content: fmt.Sprintf("**Horse Fact:**\n>>> %s", text),
+				Content: fmt.Sprintf("%s", text),
 			},
 		})
 
@@ -29,7 +29,7 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Content: fmt.Sprintf(">>> %s", text),
+				Content: fmt.Sprintf("%s", text),
 			},
 		})
 
@@ -38,7 +38,7 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Content: fmt.Sprintf(">>> %s", text),
+				Content: fmt.Sprintf("%s", text),
 			},
 		})
 
