@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// ATISResp -
 type ATISResp struct {
 	Airport string `json:"airport"`
 	Code    string `json:"code"`
@@ -18,6 +19,7 @@ type ATISResp struct {
 	Time    string `json:"time"`
 }
 
+// CmdMETAR -
 func CmdMETAR(icao string) string {
 	raw, err := fetchMETAR(icao)
 	if err != nil {
@@ -26,6 +28,7 @@ func CmdMETAR(icao string) string {
 	return fmt.Sprintf("`%s`", raw)
 }
 
+// CmdTAF -
 func CmdTAF(icao string) string {
 	raw, err := fetchTAF(icao)
 	if err != nil {
@@ -34,13 +37,14 @@ func CmdTAF(icao string) string {
 	return fmt.Sprintf("```%s```", raw)
 }
 
+// CmdWX -
 func CmdWX(icao string) string {
 	icao = strings.ToUpper(icao)
-	var metar, taf string
-	var metarErr, tafErr error
+	var metar, taf, atis string
+	var metarErr, tafErr, atisErr error
 	var wg sync.WaitGroup
 
-	wg.Add(2)
+	wg.Add(3)
 	go func() {
 		defer wg.Done()
 		metar, metarErr = fetchMETAR(icao)
@@ -48,6 +52,15 @@ func CmdWX(icao string) string {
 	go func() {
 		defer wg.Done()
 		taf, tafErr = fetchTAF(icao)
+	}()
+	go func() {
+		defer wg.Done()
+		atisRaw, _, _, err := fetchATIS(icao)
+		if err != nil {
+			atisErr = err
+			return
+		}
+		atis = atisRaw
 	}()
 	wg.Wait()
 
@@ -61,20 +74,30 @@ func CmdWX(icao string) string {
 		taf = "[TAF unavailable]"
 	}
 
-	reply := fmt.Sprintf("```\n%s\n\n%s```", metar, taf)
+	var parts []string
+	parts = append(parts, metar)
+
+	if atisErr == nil && atis != "" {
+		parts = append(parts, "", atis)
+	}
+
+	parts = append(parts, "", taf)
+
+	reply := fmt.Sprintf("```\n%s\n```", strings.Join(parts, "\n"))
 	return reply
 }
 
+// CmdATIS -
 func CmdATIS(icao string) (string, string, error) {
 	atis, code, timeStr, err := fetchATIS(icao)
 	caps := strings.ToUpper(icao)
 	if err != nil {
-		return "", "", fmt.Errorf("no ATIS for %s", caps)
+		return "", "", fmt.Errorf("No D-ATIS found for %s", caps)
 	}
 
 	atisTime, err := parseATISTime(timeStr)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to parse time: %w", err)
+		return "", "", fmt.Errorf("Unable to parse ATIS time: %w", err)
 	}
 
 	ageMinutes := int(time.Since(atisTime).Minutes())
@@ -85,6 +108,30 @@ func CmdATIS(icao string) (string, string, error) {
 
 	message := fmt.Sprintf("**(%s old)**\n>>> %s", ageText, atis)
 	return message, code, nil
+}
+
+// CmdATISLetter -
+func CmdATISLetter(icao string) (string, error) {
+	_, code, timeStr, err := fetchATIS(icao)
+	if err != nil {
+		return "", err
+	}
+
+	atisTime, err := parseATISTime(timeStr)
+	if err != nil {
+		return "", err
+	}
+
+	ageMinutes := int(time.Since(atisTime).Minutes())
+	ageText := fmt.Sprintf("%d minute", ageMinutes)
+	if ageMinutes != 1 {
+		ageText += "s"
+	}
+
+	minimal := fmt.Sprintf(
+		"# You have **%s** (%sZ - **%s old**)",
+		code, timeStr, ageText)
+	return minimal, nil
 }
 
 func parseATISTime(timeStr string) (time.Time, error) {
@@ -102,7 +149,9 @@ func parseATISTime(timeStr string) (time.Time, error) {
 	}
 
 	now := time.Now().UTC()
-	atisTime := time.Date(now.Year(), now.Month(), now.Day(), hours, minutes, 0, 0, time.UTC)
+	atisTime := time.Date(
+		now.Year(), now.Month(), now.Day(),
+		hours, minutes, 0, 0, time.UTC)
 
 	if atisTime.After(now) {
 		atisTime = atisTime.AddDate(0, 0, -1)
@@ -118,27 +167,27 @@ func fetchATIS(icao string) (string, string, string, error) {
 	client := &http.Client{Timeout: 7 * time.Second}
 	resp, err := client.Get(url)
 	if err != nil {
-		return "", "", "", fmt.Errorf("failed to fetch ATIS: %w", err)
+		return "", "", "", fmt.Errorf("Timeout or connect error: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return "", "", "", fmt.Errorf("API returns status %d", resp.StatusCode)
+		return "", "", "", fmt.Errorf("API error, status code: %d", resp.StatusCode)
 	}
 
 	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", "", "", fmt.Errorf("IO read failed: %w", err)
+		return "", "", "", fmt.Errorf("Robert's backend failed: %w", err)
 	}
 
 	jsonObjs := []ATISResp{}
 	err = json.Unmarshal(bytes, &jsonObjs)
 	if err != nil {
-		return "", "", "", fmt.Errorf("JSON parse failed: %w", err)
+		return "", "", "", fmt.Errorf("Robert's backend failed: %w", err)
 	}
 
 	if len(jsonObjs) == 0 {
-		return "", "", "", fmt.Errorf("no ATIS for %s", strings.ToUpper(icao))
+		return "", "", "", fmt.Errorf("D-ATIS fetch failed for %s", strings.ToUpper(icao))
 	}
 	tgt := jsonObjs[0]
 
