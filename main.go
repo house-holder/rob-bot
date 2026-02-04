@@ -12,7 +12,9 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func registerCommands(s *discordgo.Session) { // stale command cleanup
+// need to change slash command format
+
+func registerCommands(s *discordgo.Session) {
 	commands := []discordgo.ApplicationCommand{
 		{
 			Name:        "horsefact",
