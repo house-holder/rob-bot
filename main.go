@@ -12,7 +12,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// need to change slash command format
+// need to change slash command format to not collide
 
 func registerCommands(s *discordgo.Session) {
 	commands := []discordgo.ApplicationCommand{
