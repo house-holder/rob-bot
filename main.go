@@ -135,4 +135,5 @@ func main() {
 	<-sc
 	log.Println("stopping rob-bot")
 	dg.Close()
+	log.Println("rob-bot closed cleanly")
 }
