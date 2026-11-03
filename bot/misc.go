@@ -17,6 +17,7 @@ func handleMisc(s *discordgo.Session, m *discordgo.MessageCreate, msg string) bo
 		contains(msg, "who agrees?") ||
 		contains(msg, "someone agree") ||
 		contains(msg, "think, bob") ||
+		contains(msg, "agree?") ||
 		contains(msg, "think, rob?") {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s%s", tenor, nod))
 		return true
@@ -30,7 +31,7 @@ func handleMisc(s *discordgo.Session, m *discordgo.MessageCreate, msg string) bo
 	for _, t := range triggers {
 		if contains(msg, t) {
 			if t == "nancy" {
-				s.ChannelMessageSend(m.ChannelID, "hey! fuck the reagans")
+				s.ChannelMessageSend(m.ChannelID, "fuck the reagans")
 				return true
 			}
 			s.ChannelMessageSend(m.ChannelID, "oh yeah, fuck ronald reagan")
